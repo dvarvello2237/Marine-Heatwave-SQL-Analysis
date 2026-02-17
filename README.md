@@ -6,6 +6,7 @@ This project analyzes marine observational data using SQL to examine how marine 
 ### Objective
 
 Evaluate how marine heatwaves impact:
+
 	•	Sea surface temperature (SST)
 	•	Bleaching severity distribution
 	•	Species observations
