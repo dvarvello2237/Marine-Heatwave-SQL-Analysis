@@ -33,30 +33,82 @@ Evaluate how marine heatwaves impact:
 	•	Observed modest temperature increase (+0.18°C) between “None” and “High” severity
 	•	Higher severity groups exhibited greater SST variability
 
+```sql
+SELECT 
+    bleaching_severity,
+    ROUND(AVG(sst_celsius), 2) AS avg_sst
+FROM ocean_climate_raw
+GROUP BY bleaching_severity
+ORDER BY avg_sst DESC;
+```
+
 ### 2. Heatwave Impact on Bleaching Distribution
 	•	Calculated percent-of-total using window functions
 	•	Compared severity composition under heatwave vs non-heatwave conditions
+
+#### Non-Heatwave Conditions
+
+```sql
+SELECT
+    bleaching_severity,
+    ROUND(
+        COUNT(*) * 100.0 /
+        (SELECT COUNT(*) 
+         FROM ocean_climate_raw 
+         WHERE heatwave = False),
+    2) AS pct_no_heatwave
+FROM ocean_climate_raw
+WHERE heatwave = False
+GROUP BY bleaching_severity;
+```
+#### Heatwave Conditions
+
+```sql
+SELECT
+    bleaching_severity,
+    ROUND(
+        COUNT(*) * 100.0 /
+        (SELECT COUNT(*) 
+         FROM ocean_climate_raw 
+         WHERE heatwave = True),
+    2) AS pct_heatwave
+FROM ocean_climate_raw
+WHERE heatwave = True
+GROUP BY bleaching_severity;
+```
 
 ### 3. Species Impact Analysis
 	•	Compared group means
 	•	Calculated proportional biodiversity decline
 
+```sql
+SELECT 
+    heatwave,
+    ROUND(AVG(sst_celsius), 2) AS avg_sst,
+    ROUND(AVG(species_observed), 2) AS avg_species
+FROM ocean_climate_raw
+GROUP BY heatwave;
+```
+
 ### 4. Heatwave Duration by Location
 	•	Explored date intervals
 	•	Determined irregular sampling prevents reliable heatwave duration calculation
 
-## Key Findings
-	•	Heatwaves increased average SST from 28.14°C to 30.85°C (+2.71°C).
-	•	Non-bleaching observations decreased from 31.38% to 21.92% during heatwaves.
-	•	High-severity bleaching increased from 17.10% to 20.55%.
-	•	Species observations declined from 124.38 to 97.63, a 21.5% decrease.
+## Insights
+
+- Marine heatwaves are associated with substantial temperature increases (+2.71°C) and biodiversity loss (~27 species).
+- Bleaching severity shifts measurably during extreme warming events.
+- Even modest temperature differences (0.18°C across severity levels) correspond to stress pattern changes.
+  
+## Tools Used
+
+- PostgreSQL  
+- SQL (GROUP BY, aggregation, subqueries, STDDEV)  
+- Statistical summarization  
 
 
-## Skills Demonstrated
-	•	Aggregations using GROUP BY
-	•	Conditional logic
-	•	Window functions
-	•	Percent-of-total calculations
-	•	Statistical summaries (AVG, STDDEV)
-	•	Analytical interpretation
-	•	Limitation assessment
+## Limitations
+
+- Irregular observation intervals prevent duration modeling  
+- Observational dataset does not establish causal inference  
+- Results reflect correlations rather than controlled experimentation  
